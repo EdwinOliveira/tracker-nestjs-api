@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './interfaces/task.interface';
 
@@ -16,7 +16,18 @@ export class TasksService {
     }
 
     async getTask(id: string): Promise<Task> {
-        return await this.taskModel.findOne({ _id: id });
+        let task;
+        try {
+            task = await this.taskModel.findOne({ _id: id });
+        } catch (error) {
+            throw new NotFoundException('Request method not valid!');
+        }
+        if (!task) {
+            throw new NotFoundException('Could not find task')
+        }
+
+        return task;
+
     }
     /*--------------------------------------------------------------------*/
 
@@ -24,7 +35,12 @@ export class TasksService {
      * postTask() -> Post a single Task to the MongoDB;
      */
     async postTask(task: Task): Promise<Task> {
-        const post = new this.taskModel(task);
+        let post;
+        try {
+            post = new this.taskModel(task);
+        } catch (error) {
+            throw new NotFoundException(error)
+        }
         return await post.save();
     }
     /*---------------------------------------------------------------------*/
