@@ -35,13 +35,13 @@ export class TasksService {
      * postTask() -> Post a single Task to the MongoDB;
      */
     async postTask(task: Task): Promise<Task> {
-        let post;
+        let newTask;
         try {
-            post = new this.taskModel(task);
+            newTask = new this.taskModel(task);
         } catch (error) {
             throw new NotFoundException(error)
         }
-        return await post.save();
+        return await newTask.save();
     }
     /*---------------------------------------------------------------------*/
 
@@ -62,7 +62,18 @@ export class TasksService {
     }
 
     async deleteTask(id: string): Promise<Task> {
-        return await this.taskModel.findByIdAndRemove(id);
+        let taskToRemove;
+
+        try {
+            taskToRemove = await this.taskModel.findByIdAndRemove(id);
+        } catch (error) {
+            throw new NotFoundException('Request method or arguments invalid!');
+        }
+        if (!taskToRemove) {
+            throw new NotFoundException('Could not find task');
+        }
+
+        return taskToRemove;
     }
     /*---------------------------------------------------------------------*/
 }
