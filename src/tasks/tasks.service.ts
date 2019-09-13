@@ -5,6 +5,9 @@ import { Task } from './interfaces/task.interface';
 
 @Injectable()
 export class TasksService {
+
+    returnMessage: string;
+
     constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) { }
 
     /* Get Methods
@@ -23,7 +26,7 @@ export class TasksService {
             throw new NotFoundException('Request method not valid!');
         }
         if (!task) {
-            throw new NotFoundException('Could not find task')
+            throw new NotFoundException('Could not find task');
         }
 
         return task;
@@ -57,23 +60,38 @@ export class TasksService {
      * deleteTasks() -> Delete all Tasks from MongoDB;
      * deleteTask() -> Delete a single Task from MongoDB with the searched ID;
      */
-    async deleteTasks(): Promise<Task[]> {
-        return await this.taskModel.deleteMany();
-    }
-
-    async deleteTask(id: string): Promise<Task> {
-        let taskToRemove;
+    async deleteTasks(): Promise<string> {
+        let removeResult;
 
         try {
-            taskToRemove = await this.taskModel.findByIdAndRemove(id);
+            removeResult = await this.taskModel.deleteMany();
         } catch (error) {
             throw new NotFoundException('Request method or arguments invalid!');
+        } finally {
+            if (!removeResult) {
+                this.returnMessage = 'Requested Tasks do not exist on the context!';
+            } else {
+                this.returnMessage = 'Requested Tasks succefully deleted!';
+            }
         }
-        if (!taskToRemove) {
-            throw new NotFoundException('Could not find task');
-        }
+        return this.returnMessage;
+    }
 
-        return taskToRemove;
+    async deleteTask(id: string): Promise<string> {
+        let removeResult;
+
+        try {
+            removeResult = await this.taskModel.findByIdAndRemove(id);
+        } catch (error) {
+            throw new NotFoundException('Request method or arguments invalid!');
+        } finally {
+            if (!removeResult) {
+                this.returnMessage = 'Requested Task does not exist on the context!';
+            } else {
+                this.returnMessage = 'Requested Task succefully deleted!';
+            }
+        }
+        return this.returnMessage;
     }
     /*---------------------------------------------------------------------*/
 }

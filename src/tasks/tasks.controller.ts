@@ -28,12 +28,12 @@ export class TasksController {
     }
 
     @Delete()
-    deleteTasks(): Promise<Task[]> {
+    deleteTasks(): Promise<string> {
         return this.tasksService.deleteTasks();
     }
 
     @Delete(':id')
-    deleteTask(@Param('id') id): Promise<Task> {
+    deleteTask(@Param('id') id): Promise<string> {
         return this.tasksService.deleteTask(id);
     }
 }
