@@ -4,4 +4,9 @@ export interface Task {
     description: string;
     finishDate: string;
     complete: boolean;
-} 
+}
+
+export interface Message {
+    message: string;
+    task: Task;
+}

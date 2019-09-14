@@ -8,12 +8,12 @@ export class TasksController {
     constructor(private readonly tasksService: TasksService) { }
 
     @Get()
-    getTasks(): Promise<Task[]> {
+    getTasks(): Promise<{ message: string, tasks: Task[] }> {
         return this.tasksService.getTasks();
     }
 
     @Get(':id')
-    getTask(@Param('id') id): Promise<Task> {
+    getTask(@Param('id') id): Promise<{ message: string, tasks: Task[] }> {
         return this.tasksService.getTask(id);
     }
 
@@ -23,7 +23,7 @@ export class TasksController {
     }
 
     @Put()
-    updateTask(@Body() updateTaskDto: TaskDto, @Param('id') id): Promise<Task> {
+    updateTask(@Body() updateTaskDto: TaskDto, @Param('id') id): Promise<{ message: string, tasks: Task[] }> {
         return this.tasksService.updateTask(id, updateTaskDto);
     }
 

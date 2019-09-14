@@ -6,7 +6,7 @@ import { Task } from './interfaces/task.interface';
 @Injectable()
 export class TasksService {
 
-    returnMessage: string;
+    returnedMessage: { message: string, tasks: Task[] };
 
     constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) { }
 
@@ -14,23 +14,44 @@ export class TasksService {
      * getTasks() -> Return all Tasks from MongoDB;
      * getTask() -> Return a single Task from MongoDB with the searched ID;
      */
-    async getTasks(): Promise<Task[]> {
-        return await this.taskModel.find();
+    async getTasks(): Promise<{ message: string, tasks: Task[] }> {
+        let getTasks;
+
+        try {
+            getTasks = await this.taskModel.find();
+        } catch (error) {
+            throw new NotFoundException(error);
+        }
+        if (!getTasks) {
+            throw new NotFoundException('Requested Task does not exist on the current context!');
+        } else {
+            this.returnedMessage = {
+                message: 'Request Tasks succefully loaded!',
+                tasks: getTasks,
+            };
+        }
+
+        return this.returnedMessage;
     }
 
-    async getTask(id: string): Promise<Task> {
-        let task;
+    async getTask(id: string): Promise<{ message: string, tasks: Task[] }> {
+        let getTask;
+
         try {
-            task = await this.taskModel.findOne({ _id: id });
+            getTask = await this.taskModel.findOne({ _id: id });
         } catch (error) {
-            throw new NotFoundException('Request method not valid!');
+            throw new NotFoundException('Requested method not valid!');
         }
-        if (!task) {
-            throw new NotFoundException('Could not find task');
+        if (!getTask) {
+            throw new NotFoundException('Requested Task does not exist on the current context!');
+        } else {
+            this.returnedMessage = {
+                message: 'Request Task succefully loaded!',
+                tasks: getTask,
+            };
         }
 
-        return task;
-
+        return this.returnedMessage;
     }
     /*--------------------------------------------------------------------*/
 
@@ -42,7 +63,7 @@ export class TasksService {
         try {
             newTask = new this.taskModel(task);
         } catch (error) {
-            throw new NotFoundException(error)
+            throw new NotFoundException(error);
         }
         return await newTask.save();
     }
@@ -51,8 +72,22 @@ export class TasksService {
     /* Update Methods
      * updateTask() -> Update a single Task from MongoDB with the searched ID;
      */
-    async updateTask(id: string, task: Task): Promise<Task> {
-        return await this.taskModel.findByIdAndUpdate(id, task, { new: true });
+    async updateTask(id: string, task: Task): Promise<{ message: string, tasks: Task[] }> {
+        let updateResult;
+        try {
+            updateResult = await this.taskModel.findByIdAndUpdate(id, task, { new: true });
+        } catch (error) {
+            throw new NotFoundException('Requested method or arguments invalid!');
+        }
+        if (!updateResult) {
+            throw new NotFoundException('Requested Task does not exist on the current context!');
+        } else {
+            this.returnedMessage = {
+                message: 'Requested Tasks succefully deleted!',
+                tasks: updateResult,
+            };
+        }
+        return this.returnedMessage;
     }
     /*---------------------------------------------------------------------*/
 
@@ -66,15 +101,17 @@ export class TasksService {
         try {
             removeResult = await this.taskModel.deleteMany();
         } catch (error) {
-            throw new NotFoundException('Request method or arguments invalid!');
-        } finally {
-            if (!removeResult) {
-                this.returnMessage = 'Requested Tasks do not exist on the context!';
-            } else {
-                this.returnMessage = 'Requested Tasks succefully deleted!';
-            }
+            throw new NotFoundException('Requested method or arguments invalid!');
         }
-        return this.returnMessage;
+        if (!removeResult) {
+            throw new NotFoundException('Requested Tasks do not exist on the current context!');
+        } else {
+            this.returnedMessage = {
+                message: 'Requested Tasks succefully deleted!',
+                tasks: removeResult,
+            };
+        }
+        return this.returnedMessage.message;
     }
 
     async deleteTask(id: string): Promise<string> {
@@ -83,15 +120,18 @@ export class TasksService {
         try {
             removeResult = await this.taskModel.findByIdAndRemove(id);
         } catch (error) {
-            throw new NotFoundException('Request method or arguments invalid!');
-        } finally {
-            if (!removeResult) {
-                this.returnMessage = 'Requested Task does not exist on the context!';
-            } else {
-                this.returnMessage = 'Requested Task succefully deleted!';
-            }
+            throw new NotFoundException('Requested method or arguments invalid!');
         }
-        return this.returnMessage;
+        if (!removeResult) {
+            throw new NotFoundException('Requested Task does not exist on the context!');
+        } else {
+            this.returnedMessage = {
+                message: 'Requested Task succefully deleted!',
+                tasks: removeResult,
+            };
+        }
+
+        return this.returnedMessage.message;
     }
     /*---------------------------------------------------------------------*/
 }
