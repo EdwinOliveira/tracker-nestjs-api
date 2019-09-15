@@ -20,7 +20,7 @@ export class TasksService {
         try {
             getTasks = await this.taskModel.find();
         } catch (error) {
-            throw new NotFoundException(error);
+            throw new NotFoundException('Requested method not valid!');
         }
         if (!getTasks) {
             throw new NotFoundException('Requested Task does not exist on the current context!');
