@@ -83,7 +83,7 @@ export class TasksService {
             throw new NotFoundException('Requested Task does not exist on the current context!');
         } else {
             this.returnedMessage = {
-                message: 'Requested Tasks succefully deleted!',
+                message: 'Requested Tasks succefully updated!',
                 tasks: updateResult,
             };
         }

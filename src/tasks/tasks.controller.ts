@@ -22,7 +22,7 @@ export class TasksController {
         return this.tasksService.postTask(createTaskDto);
     }
 
-    @Put()
+    @Put(':id')
     updateTask(@Body() updateTaskDto: TaskDto, @Param('id') id): Promise<{ message: string, tasks: Task[] }> {
         return this.tasksService.updateTask(id, updateTaskDto);
     }
