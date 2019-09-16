@@ -18,7 +18,7 @@ export class TasksController {
     }
 
     @Post()
-    postTask(@Body() createTaskDto: TaskDto): Promise<Task> {
+    postTask(@Body() createTaskDto: TaskDto): Promise<{ message: string, tasks: Task[] }> {
         return this.tasksService.postTask(createTaskDto);
     }
 

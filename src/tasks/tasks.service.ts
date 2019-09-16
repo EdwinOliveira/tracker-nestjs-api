@@ -58,14 +58,34 @@ export class TasksService {
     /* Post Methods
      * postTask() -> Post a single Task to the MongoDB;
      */
-    async postTask(task: Task): Promise<Task> {
+    async postTask(task: Task): Promise<{ message: string, tasks: Task[] }> {
         let newTask;
+        let saveTask;
         try {
             newTask = new this.taskModel(task);
         } catch (error) {
-            throw new NotFoundException(error);
+            throw new NotFoundException('error');
         }
-        return await newTask.save();
+        if (newTask) {
+            try {
+                saveTask = await newTask.save();
+                this.returnedMessage = {
+                    message: 'Requested Tasks succefully created!',
+                    tasks: saveTask,
+                };
+            } catch (error) {
+                if (!task.title) {
+                    throw new NotFoundException('Title field is required');
+                }
+                if (!task.description) {
+                    throw new NotFoundException('Description field is required');
+                }
+                if (!task.finishDate) {
+                    throw new NotFoundException('Finish date field is required');
+                }
+            }
+        }
+        return this.returnedMessage;
     }
     /*---------------------------------------------------------------------*/
 
